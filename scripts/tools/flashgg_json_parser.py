@@ -1,0 +1,43 @@
+#Written by Rohith Saradhy
+# Description:
+#  Looks at all the *json files in the root_folder and creates a json file of processes given in the listOfInterest list
+#  saves the final process json into a filed named by the variable outputName; default is output.json
+#  
+#Need the following libraries for the function to work:
+import json
+import glob
+
+def findDataFromCatalog(root_folder, listOfInterest,outputName="output.json",): 
+    list_files = glob.glob(root_folder+"/*json")
+    if len(list_files) < 1:
+        print "The folder does not contain any files...; Please Check Again"
+        return None
+    else:
+        print "Files found... Processing"
+    data = {}
+    data_out = {}
+    data_process = {}
+    data_out["cmdLine"] = "campaign="+list_files[0].split('/')[-2]
+    for lookingAt in range(0,len(listOfInterest)):
+        data_process[listOfInterest[int(lookingAt)]] = []
+        for files in list_files:
+            
+            nameOfFile = files.split('/')[-1].split(".")[0]  
+            data[nameOfFile] = json.load(open(files))
+            # pprint(data.keys())
+        for key in data:
+            # pprint(data[key].keys())
+            for names in data[key].keys():
+                if listOfInterest[int(lookingAt)] in names:
+#                     print listOfInterest[int(lookingAt)]+'\t'+key + "\n" + names + "\n"
+                    data_process[listOfInterest[int(lookingAt)]].append(names)
+                    
+    data_out['processes'] = data_process
+    
+    with open(outputName,'w') as fp:
+        print "Saving to the following file: " + outputName
+        json.dump(data_out,fp,sort_keys=True,indent=4)
+        print "Done Saving"
+    return None
+
+
